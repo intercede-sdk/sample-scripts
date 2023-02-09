@@ -1,4 +1,4 @@
-﻿Param
+Param
 (
     [string]$authUrl = "https://react.domain31.local/web.oauth2/connect/token",
     [string]$apiUrl = "https://react.domain31.local/rest.core/api",
@@ -7,9 +7,9 @@
     [string]$groupName = "Technology",
     [string]$roleName = "MyID_PROD_Cardholders",
     [string]$roleScope = "self",
-    [string]$domain = "domain31",
     [string]$credProfileName = "TMO_1",
-    [switch]$canUseExistingUser
+    [string]$uniqueId,
+    [string]$logonName
 )
 
 Function Invoke-CoreAPI-Get {
@@ -29,7 +29,7 @@ Function Invoke-CoreAPI-Get {
     }
 }
 
-Function Invoke-CoreAPI-Post {
+Function Invoke-CoreAPI-Method {
     Param
     (
         [Parameter(Mandatory)]
@@ -37,11 +37,12 @@ Function Invoke-CoreAPI-Post {
         [string] $FailureMessage = "",
 
         [Parameter(Mandatory)]
-        [object] $Body
+        [object] $Body,
+        [string] $Method = "Post"
     )
 
     try {
-        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders -Method Post -Body ($Body | ConvertTo-Json)
+        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders -Method $Method -Body ($Body | ConvertTo-Json)
         return ConvertFrom-Json $apiResponse.Content
     }
     catch {
@@ -70,64 +71,46 @@ $apiHeaders = @{
     'Content-type'  = 'application/json'
 }
 
+################ Get directory
+# Assuming only one directory
+$dirId = (Invoke-CoreAPI-Get -Location "dirs" -FailureMessage "").results.id
+
 ################ Get Group
-# Make sure group we are trying to set exists
-# We could add group through API, but it seems more sensible that Config should be done ahead
+# If groups are not auto-created, we need to set a target group
 $groupId = (Invoke-CoreAPI-Get -Location "groups?q=$groupName" -FailureMessage "Unable to get group").results.id
 if (!$groupId) {
     return "Unable to find Group '$groupName'"
 }
 
-################ Get Role
-# Make sure role we are trying to set exists
-# Unfortunately this API endpoint doesn't filter on name
-$roleId = (Invoke-CoreAPI-Get -Location "roles" -FailureMessage "Unable to get role").results | Where-Object id -eq $roleName
-if (!$roleId) {
-    return "Unable to find Role '$roleName'"
-}
+################ Import User
+if (!$uniqueId) {
+    if (!$logonName) {
+        return "Provide either a uniqueId or a logonName"
+    }
 
-################ Add/Get User
-Import-CSV -Path .\ACastle2.csv -Delimiter ';' |
-ForEach-Object {
-    $logonName = $_.SAMAccountName
-    $body = @{
-        name      = @{
-            first = $_.GivenName
-            last  = $_.sn
-        }
-        enabled   = 1
-        logonName = $logonName
-        group     = @{
-            id   = $groupId
-            name = $groupName
-        }
-        roles     = @(
-            @{
-                id    = $roleName
-                name  = $roleName
-                scope = $roleScope
-            }
-        )
-        account   = @{
-            samAccountName = $logonName
-            upn            = $_.userPrincipalName
-            dn             = $_.distinguishedName
-            cn             = $_.CN
-            domain         = $domain
-
-        }
+    $uniqueId = (Invoke-CoreAPI-Get -Location "dirs/$dirId/people?ldap.logonName=$logonName" -FailureMessage "Unable to find user in LDAP").results.id
+    if (!$uniqueId) {
+        return "Unable to find user in LDAP"
     }
 }
 
-if ($canUseExistingUser) {
-    $userId = (Invoke-CoreAPI-Get -Location "people?logonName=$logonName").results.id
+$body = @{
+    group = @{
+        id   = $groupId
+        name = $groupName
+    }
+    roles = @(
+        @{
+            id    = $roleName
+            name  = $roleName
+            scope = $roleScope
+        }
+    )
 }
 
+$userId = (Invoke-CoreAPI-Method -Location "dirs/$dirId/people/$uniqueId" -FailureMessage "Unable to import user" -Body $body -Method "Patch").id
 if (!$userId) {
-    $userId = (Invoke-CoreAPI-Post -Location "people" -FailureMessage "Unable to add user" -Body $body).id
-    if (!$userId) {
-        return
-    }
+    return
 }
 
 ################ Create request
@@ -142,7 +125,7 @@ $body = @{
     }
 }
 
-$response = Invoke-CoreAPI-Post -Location "people/$userId/requests" -FailureMessage "Unable to create request for user" -Body $body
+$response = Invoke-CoreAPI-Method -Location "people/$userId/requests" -FailureMessage "Unable to create request for user" -Body $body
 if ($response) {
     "Request created for user."
     $response
