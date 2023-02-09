@@ -1,8 +1,4 @@
-﻿#TODO: Create import from LDAP script
-#TODO: Add switch to decide whether to use existing user for requests (i.e. don't error if user already exists)
-#TODO ? Move try/catch to functions
-
-Param
+﻿Param
 (
     [string]$authUrl = "https://react.domain31.local/web.oauth2/connect/token",
     [string]$apiUrl = "https://react.domain31.local/rest.core/api",
@@ -12,7 +8,8 @@ Param
     [string]$roleName = "MyID_PROD_Cardholders",
     [string]$roleScope = "self",
     [string]$domain = "domain31",
-    [string]$credProfileName = "TMO_1"
+    [string]$credProfileName = "TMO_1",
+    [switch]$canUseExistingUser
 )
 
 Function Invoke-CoreAPI-Get {
@@ -31,7 +28,6 @@ Function Invoke-CoreAPI-Get {
         Write-Host "ERROR - $FailureMessage. $_"
         return ""
     }
-
 }
 
 Function Invoke-CoreAPI-Post {
@@ -77,11 +73,11 @@ $apiHeaders = @{
 }
 
 ################ Get Group
+# Make sure group we are trying to set exists
+# We could add group through API, but it seems more sensible that Config should be done ahead
 $groupId = (Invoke-CoreAPI-Get -Location "groups?q=$groupName" -FailureMessage "Unable to get group").results.id
 if (!$groupId) {
     return "Unable to find Group '$groupName'"
-    # We could add group through API, but it seems more sensible that Config should be done ahead
-    # Similar to the roles we expect the system to have
 }
 
 ################ Get Role
@@ -92,20 +88,17 @@ if (!$roleId) {
     return "Unable to find Role '$roleName'"
 }
 
-# note objectGUID/uniqueID from LDAP can't be used
-# show a separate LDAP import
-#                            <UniqueID>'+$UniqueID+'</UniqueID>
-
-################ Add User
+################ Add/Get User
 Import-CSV -Path .\ACastle2.csv -Delimiter ';' |
 ForEach-Object {
+    $logonName = $_.SAMAccountName
     $body = @{
         name      = @{
             first = $_.GivenName
             last  = $_.sn
         }
         enabled   = 1
-        logonName = $_.SAMAccountName
+        logonName = $logonName
         group     = @{
             id   = $groupId
             name = $groupName
@@ -118,7 +111,7 @@ ForEach-Object {
             }
         )
         account   = @{
-            samAccountName = $_.SAMAccountName
+            samAccountName = $logonName
             upn            = $_.userPrincipalName
             dn             = $_.distinguishedName
             cn             = $_.CN
@@ -127,25 +120,16 @@ ForEach-Object {
         }
     }
 }
-       
-# Are these settings available?
-#            <SourceID>CertServ</SourceID>
-#            <IssueDate>2022-07-22</IssueDate>
-#            <GenerateUserDN>0</GenerateUserDN>
-#            <ActionOnDuplicate>MergeEmpty</ActionOnDuplicate>
-#            <RolesActionOnDuplicate>Skip</RolesActionOnDuplicate>
-#            <DeleteMissingUsers>0</DeleteMissingUsers>
-#            <PushToLDAP>0</PushToLDAP>
-#            <CreateUnknownGroups>1</CreateUnknownGroups>
-#            <AuditAll>1</AuditAll>
-#            <DataType>CMSRequestCard</DataType>
 
+if ($canUseExistingUser) {
+    $userId = (Invoke-CoreAPI-Get -Location "people?logonName=$logonName").results.id
+}
 
-$newUser = (Invoke-CoreAPI-Post -Location "people" -FailureMessage "Unable to add user" -Body $body).id
-if (!$newUser) {
-    ## I don't want to accidentally add request for a different user in the system
-    # We could have searched for Logon Name prior to add to avoid 'logonName already exists' errors
-    return;
+if (!$userId) {
+    $userId = (Invoke-CoreAPI-Post -Location "people" -FailureMessage "Unable to add user" -Body $body).id
+    if (!$userId) {
+        return;
+    }
 }
 
 ################ Create request
@@ -160,7 +144,7 @@ $body = @{
     }
 }
 
-$response = Invoke-CoreAPI-Post -Location "people/$newUser/requests" -FailureMessage "Unable to create request for user" -Body $body
+$response = Invoke-CoreAPI-Post -Location "people/$userId/requests" -FailureMessage "Unable to create request for user" -Body $body
 if ($response) {
     "Request created for user."
     $response
