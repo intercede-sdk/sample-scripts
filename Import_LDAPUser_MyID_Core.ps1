@@ -1,15 +1,20 @@
 Param
 (
+    [Parameter(Mandatory)]
+    [string]$clientId,
+    [Parameter(Mandatory)]
+    [string]$clientSecret,
+
     [string]$authUrl = "https://react.domain31.local/web.oauth2/connect/token",
     [string]$apiUrl = "https://react.domain31.local/rest.core/api",
-    [string]$clientId = "client id",
-    [string]$clientSecret = "client secret",
     [string]$groupName = "Technology",
     [string]$roleName = "MyID_PROD_Cardholders",
     [string]$roleScope = "self",
     [string]$credProfileName = "TMO_1",
     [string]$uniqueId,
-    [string]$logonName
+    [string]$logonName,
+
+    [switch]$showLinks
 )
 
 Function Invoke-CoreAPI-Get {
@@ -128,5 +133,9 @@ $body = @{
 $response = Invoke-CoreAPI-Method -Location "people/$userId/requests" -FailureMessage "Unable to create request for user" -Body $body
 if ($response) {
     "Request created for user."
-    $response
+
+    if (!$showLinks) {
+        $response.PSObject.Properties.Remove('links')
+    }
+    ConvertTo-Json $response -Depth 6
 }
