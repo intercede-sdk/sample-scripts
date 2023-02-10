@@ -14,7 +14,8 @@ Param
     [string]$uniqueId,
     [string]$logonName,
 
-    [switch]$showLinks
+    [switch]$showLinks,
+    [switch]$doDirSync
 )
 
 Function Invoke-CoreAPI-Get {
@@ -61,10 +62,10 @@ $headers = @{
 }
 
 try {
-    $tokenResponse = Invoke-WebRequest -Uri $authUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
-    $tokenResponseJSON = ConvertFrom-Json $tokenResponse.Content
+    $tokenResponseJSON = Invoke-WebRequest -Uri $authUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
+    $tokenResponse = ConvertFrom-Json $tokenResponseJSON.Content
 
-    $token = $tokenResponseJSON.access_token 
+    $token = $tokenResponse.access_token 
 }
 catch {
     return "ERROR - Unable to get an access token. $_"
@@ -78,7 +79,10 @@ $apiHeaders = @{
 
 ################ Get directory
 # Assuming only one directory
-$dirId = (Invoke-CoreAPI-Get -Location "dirs" -FailureMessage "").results.id
+$dirId = (Invoke-CoreAPI-Get -Location "dirs" -FailureMessage "Failure getting directory information").results.id
+if (!$dirId) {
+    return;
+}
 
 ################ Get Group
 # If groups are not auto-created, we need to set a target group
@@ -95,7 +99,7 @@ if (!$uniqueId) {
 
     $uniqueId = (Invoke-CoreAPI-Get -Location "dirs/$dirId/people?ldap.logonName=$logonName" -FailureMessage "Unable to find user in LDAP").results.id
     if (!$uniqueId) {
-        return "Unable to find user in LDAP"
+        return "Unable to find user '$logonName' in LDAP"
     }
 }
 
@@ -138,4 +142,14 @@ if ($response) {
         $response.PSObject.Properties.Remove('links')
     }
     ConvertTo-Json $response -Depth 6
+}
+
+################ Directory Sync (optional)
+if ($doDirSync) {
+    $dirSync = Invoke-CoreAPI-Method -Location "people/$userId/DirSync" -FailureMessage "Unable to import user" -Body $body
+    @{
+        "account" = $dirSync.account
+        "group"   = $dirSync.group
+        "roles"   = $dirSync.roles
+    }
 }
