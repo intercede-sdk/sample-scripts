@@ -1,21 +1,21 @@
 Param
 (
     [Parameter(Mandatory)]
-    [string]$clientId,
+    [string]$ClientId,
     [Parameter(Mandatory)]
-    [string]$clientSecret,
+    [string]$ClientSecret,
 
-    [string]$authUrl = "https://react.domain31.local/web.oauth2/connect/token",
-    [string]$apiUrl = "https://react.domain31.local/rest.core/api",
-    [string]$groupName = "Technology",
-    [string]$roleName = "MyID_PROD_Cardholders",
-    [string]$roleScope = "self",
-    [string]$credProfileName = "TMO_1",
-    [string]$uniqueId,
-    [string]$logonName,
+    [string]$AuthUrl = "https://react.domain31.local/web.oauth2/connect/token",
+    [string]$ApiUrl = "https://react.domain31.local/rest.core/api",
+    [string]$GroupName = "Technology",
+    [string]$RoleName = "MyID_PROD_Cardholders",
+    [string]$RoleScope = "self",
+    [string]$CredProfileName = "TMO_1",
+    [string]$UniqueId,
+    [string]$LogonName,
 
-    [switch]$showLinks,
-    [switch]$doDirSync
+    [switch]$ShowLinks,
+    [switch]$DoDirSync
 )
 
 Function Invoke-CoreAPI-Get {
@@ -27,7 +27,7 @@ Function Invoke-CoreAPI-Get {
     )
 
     try {
-        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders
+        $apiResponse = Invoke-WebRequest -Uri "$ApiUrl/$Location" -Headers $apiHeaders
         return ConvertFrom-Json $apiResponse.Content
     }
     catch {
@@ -48,7 +48,7 @@ Function Invoke-CoreAPI-Method {
     )
 
     try {
-        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders -Method $Method -Body ($Body | ConvertTo-Json)
+        $apiResponse = Invoke-WebRequest -Uri "$ApiUrl/$Location" -Headers $apiHeaders -Method $Method -Body ($Body | ConvertTo-Json)
         return ConvertFrom-Json $apiResponse.Content
     }
     catch {
@@ -58,11 +58,11 @@ Function Invoke-CoreAPI-Method {
 
 ################ Auth
 $headers = @{
-    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${clientId}:${clientSecret}"))
+    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${ClientId}:${ClientSecret}"))
 }
 
 try {
-    $tokenResponseJSON = Invoke-WebRequest -Uri $authUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
+    $tokenResponseJSON = Invoke-WebRequest -Uri $AuthUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
     $tokenResponse = ConvertFrom-Json $tokenResponseJSON.Content
 
     $token = $tokenResponse.access_token 
@@ -86,46 +86,46 @@ if (!$dirId) {
 
 ################ Get Group
 # If groups are not auto-created, we need to set a target group
-$groupId = (Invoke-CoreAPI-Get -Location "groups?q=$groupName" -FailureMessage "Unable to get group").results.id
+$groupId = (Invoke-CoreAPI-Get -Location "groups?q=$GroupName" -FailureMessage "Unable to get group").results.id
 if (!$groupId) {
-    return "Unable to find Group '$groupName'"
+    return "Unable to find Group '$GroupName'"
 }
 
 ################ Import User
-if (!$uniqueId) {
-    if (!$logonName) {
-        return "Provide either a uniqueId or a logonName"
+if (!$UniqueId) {
+    if (!$LogonName) {
+        return "Provide either a UniqueId or a LogonName"
     }
 
-    $uniqueId = (Invoke-CoreAPI-Get -Location "dirs/$dirId/people?ldap.logonName=$logonName" -FailureMessage "Unable to find user in LDAP").results.id
-    if (!$uniqueId) {
-        return "Unable to find user '$logonName' in LDAP"
+    $UniqueId = (Invoke-CoreAPI-Get -Location "dirs/$dirId/people?ldap.LogonName=$LogonName" -FailureMessage "Unable to find user in LDAP").results.id
+    if (!$UniqueId) {
+        return "Unable to find user '$LogonName' in LDAP"
     }
 }
 
 $body = @{
     group = @{
         id   = $groupId
-        name = $groupName
+        name = $GroupName
     }
     roles = @(
         @{
-            id    = $roleName
-            name  = $roleName
-            scope = $roleScope
+            id    = $RoleName
+            name  = $RoleName
+            scope = $RoleScope
         }
     )
 }
 
-$userId = (Invoke-CoreAPI-Method -Location "dirs/$dirId/people/$uniqueId" -FailureMessage "Unable to import user" -Body $body -Method "Patch").id
+$userId = (Invoke-CoreAPI-Method -Location "dirs/$dirId/people/$UniqueId" -FailureMessage "Unable to import user" -Body $body -Method "Patch").id
 if (!$userId) {
     return
 }
 
 ################ Create request
-$credProfileId = (Invoke-CoreAPI-Get -Location "credprofiles?q=$credProfileName" -FailureMessage "Unable to get credential profile").results.id
+$credProfileId = (Invoke-CoreAPI-Get -Location "credprofiles?q=$CredProfileName" -FailureMessage "Unable to get credential profile").results.id
 if (!$credProfileId) {
-    return "Unable to find Credential profile '$credProfileName'"
+    return "Unable to find Credential profile '$CredProfileName'"
 }
 
 $body = @{
@@ -138,14 +138,14 @@ $response = Invoke-CoreAPI-Method -Location "people/$userId/requests" -FailureMe
 if ($response) {
     "Request created for user."
 
-    if (!$showLinks) {
+    if (!$ShowLinks) {
         $response.PSObject.Properties.Remove('links')
     }
     ConvertTo-Json $response -Depth 6
 }
 
 ################ Directory Sync (optional)
-if ($doDirSync) {
+if ($DoDirSync) {
     $dirSync = Invoke-CoreAPI-Method -Location "people/$userId/DirSync" -FailureMessage "Unable to import user" -Body $body
     @{
         "account" = $dirSync.account

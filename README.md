@@ -7,12 +7,12 @@ A collection of sample PowerShell scripts.
 Example usage:
 
 ```
-.\getBearer.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde
+.\getBearer.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde
 
-.\Import_MyID_Core.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde
-.\Import_MyID_Core.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -canUseExistingUser
+.\Import_MyID_Core.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde
+.\Import_MyID_Core.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -CanUseExistingUser
 
-.\Import_LDAPUser_MyID_Core.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -logonName "Alena Castle"
-.\Import_LDAPUser_MyID_Core.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -uniqueId "619F4E062A51264A9452EF5F18A89506"
-.\Import_LDAPUser_MyID_Core.ps1 -clientId my.secret -clientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -uniqueId "619F4E062A51264A9452EF5F18A89506" -doDirSync
+.\Import_LDAPUser_MyID_Core.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -LogonName "Alena Castle"
+.\Import_LDAPUser_MyID_Core.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -UniqueId "619F4E062A51264A9452EF5F18A89506"
+.\Import_LDAPUser_MyID_Core.ps1 -ClientId my.secret -ClientSecret 7f7bd651-15a4-5c33-8c3a-a76a21eddbde -UniqueId "619F4E062A51264A9452EF5F18A89506" -DoDirSync
 ```

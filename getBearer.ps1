@@ -1,19 +1,22 @@
 ﻿Param
 (
-    [string]$authurl = "https://react.domain31.local/web.oauth2/connect/token",
-    [string]$clientId = "client id",
-    [string]$clientSecret = "client secret"
+    [Parameter(Mandatory)]
+    [string]$ClientId,
+    [Parameter(Mandatory)]
+    [string]$ClientSecret,
+
+    [string]$Authurl = "https://react.domain31.local/web.oauth2/connect/token"
 )
 
 $headers = @{
-    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${clientId}:${clientSecret}"))
+    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${ClientId}:${ClientSecret}"))
 }
 
 try {
-    $tokenResponse = Invoke-WebRequest -Uri $authurl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
-    $tokenResponseJSON = ConvertFrom-Json $tokenResponse.Content
+    $tokenResponseJSON = Invoke-WebRequest -Uri $Authurl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
+    $tokenResponse = ConvertFrom-Json $tokenResponseJSON.Content
 
-    $token = $tokenResponseJSON.access_token 
+    $token = $tokenResponse.access_token 
 
     "  Authorized. Token is:"
     "$token"

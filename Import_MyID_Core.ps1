@@ -1,20 +1,20 @@
 ﻿Param
 (
     [Parameter(Mandatory)]
-    [string]$clientId,
+    [string]$ClientId,
     [Parameter(Mandatory)]
-    [string]$clientSecret,
+    [string]$ClientSecret,
 
-    [string]$authUrl = "https://react.domain31.local/web.oauth2/connect/token",
-    [string]$apiUrl = "https://react.domain31.local/rest.core/api",
-    [string]$groupName = "Technology",
-    [string]$roleName = "MyID_PROD_Cardholders",
-    [string]$roleScope = "self",
-    [string]$domain = "domain31",
-    [string]$credProfileName = "TMO_1",
+    [string]$AuthUrl = "https://react.domain31.local/web.oauth2/connect/token",
+    [string]$ApiUrl = "https://react.domain31.local/rest.core/api",
+    [string]$GroupName = "Technology",
+    [string]$RoleName = "MyID_PROD_Cardholders",
+    [string]$RoleScope = "self",
+    [string]$Domain = "domain31",
+    [string]$CredProfileName = "TMO_1",
     
-    [switch]$canUseExistingUser,
-    [switch]$showLinks
+    [switch]$CanUseExistingUser,
+    [switch]$ShowLinks
 )
 
 Function Invoke-CoreAPI-Get {
@@ -26,7 +26,7 @@ Function Invoke-CoreAPI-Get {
     )
 
     try {
-        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders
+        $apiResponse = Invoke-WebRequest -Uri "$ApiUrl/$Location" -Headers $apiHeaders
         return ConvertFrom-Json $apiResponse.Content
     }
     catch {
@@ -46,7 +46,7 @@ Function Invoke-CoreAPI-Post {
     )
 
     try {
-        $apiResponse = Invoke-WebRequest -Uri "$apiUrl/$Location" -Headers $apiHeaders -Method Post -Body ($Body | ConvertTo-Json)
+        $apiResponse = Invoke-WebRequest -Uri "$ApiUrl/$Location" -Headers $apiHeaders -Method Post -Body ($Body | ConvertTo-Json)
         return ConvertFrom-Json $apiResponse.Content
     }
     catch {
@@ -56,11 +56,11 @@ Function Invoke-CoreAPI-Post {
 
 ################ Auth
 $headers = @{
-    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${clientId}:${clientSecret}"))
+    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${ClientId}:${ClientSecret}"))
 }
 
 try {
-    $tokenResponse = Invoke-WebRequest -Uri $authUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
+    $tokenResponse = Invoke-WebRequest -Uri $AuthUrl -Method Post -Headers $headers  -Body "grant_type=client_credentials"
     $tokenResponseJSON = ConvertFrom-Json $tokenResponse.Content
 
     $token = $tokenResponseJSON.access_token 
@@ -78,17 +78,17 @@ $apiHeaders = @{
 ################ Get Group
 # Make sure group we are trying to set exists
 # We could add group through API, but it seems more sensible that Config should be done ahead
-$groupId = (Invoke-CoreAPI-Get -Location "groups?q=$groupName" -FailureMessage "Unable to get group").results.id
+$groupId = (Invoke-CoreAPI-Get -Location "groups?q=$GroupName" -FailureMessage "Unable to get group").results.id
 if (!$groupId) {
-    return "Unable to find Group '$groupName'"
+    return "Unable to find Group '$GroupName'"
 }
 
 ################ Get Role
 # Make sure role we are trying to set exists
 # Unfortunately this API endpoint doesn't filter on name
-$roleId = (Invoke-CoreAPI-Get -Location "roles" -FailureMessage "Unable to get role").results | Where-Object id -eq $roleName
+$roleId = (Invoke-CoreAPI-Get -Location "roles" -FailureMessage "Unable to get role").results | Where-Object id -eq $RoleName
 if (!$roleId) {
-    return "Unable to find Role '$roleName'"
+    return "Unable to find Role '$RoleName'"
 }
 
 ################ Add/Get User
@@ -104,13 +104,13 @@ ForEach-Object {
         logonName = $logonName
         group     = @{
             id   = $groupId
-            name = $groupName
+            name = $GroupName
         }
         roles     = @(
             @{
-                id    = $roleName
-                name  = $roleName
-                scope = $roleScope
+                id    = $RoleName
+                name  = $RoleName
+                scope = $RoleScope
             }
         )
         account   = @{
@@ -118,13 +118,13 @@ ForEach-Object {
             upn            = $_.userPrincipalName
             dn             = $_.distinguishedName
             cn             = $_.CN
-            domain         = $domain
+            domain         = $Domain
 
         }
     }
 }
 
-if ($canUseExistingUser) {
+if ($CanUseExistingUser) {
     $userId = (Invoke-CoreAPI-Get -Location "people?logonName=$logonName").results.id
 }
 
@@ -136,9 +136,9 @@ if (!$userId) {
 }
 
 ################ Create request
-$credProfileId = (Invoke-CoreAPI-Get -Location "credprofiles?q=$credProfileName" -FailureMessage "Unable to get credential profile").results.id
+$credProfileId = (Invoke-CoreAPI-Get -Location "credprofiles?q=$CredProfileName" -FailureMessage "Unable to get credential profile").results.id
 if (!$credProfileId) {
-    return "Unable to find Credential profile '$credProfileName'"
+    return "Unable to find Credential profile '$CredProfileName'"
 }
 
 $body = @{
@@ -151,7 +151,7 @@ $response = Invoke-CoreAPI-Post -Location "people/$userId/requests" -FailureMess
 if ($response) {
     "Request created for user."
 
-    if (!$showLinks) {
+    if (!$ShowLinks) {
         $response.PSObject.Properties.Remove('links')
     }
     ConvertTo-Json $response -Depth 6
