@@ -22,6 +22,10 @@ Param
     [switch]$DoDirSync
 )
 
+if ($UniqueId && $LogonName) {
+    return "Please provide either a UniqueID or a LogonName but not both"
+}
+
 Import-Module $PSScriptRoot\Invoke-CoreAPI.psm1 -Force
 
 Set-CoreAPIConnection -Server $Server -ClientId $ClientId -ClientSecret $ClientSecret
