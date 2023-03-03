@@ -3,21 +3,20 @@
 This script shows how a user can be imported from LDAP, using either their LogonName or UniqueID.
 A request is then made for the imported user. If the user has already been imported, an additional request is made for them.
 Optionally perform a directory sync.
+Update the PARAM section to reflect your environment
 #>
 Param
 (
-    [Parameter(Mandatory)]
-    [string]$ClientId,
-    [Parameter(Mandatory)]
-    [string]$ClientSecret,
-
+    [string]$ClientId = "myid.mysystem",
+    [string]$ClientSecret = "efdc4478-4fda-468b-9d9a-78792c20c683",
     [string]$Server = "https://react.domain31.local",
     [string]$GroupName = "Technology",
     [string]$RoleName = "MyID_PROD_Cardholders",
     [string]$RoleScope = "self",
-    [string]$CredProfileName = "TMO_1",
-    [string]$UniqueId,
-    [string]$LogonName,
+    [string]$CardProfileName = "PIV_1",
+    # Only one of the following Strings need to be completed; UniqueId is from LDAP
+    [string]$UniqueId = "619F4E062A51264A9452EF5F18A89506",
+    [string]$LogonName = "Alena Castle",
 
     [switch]$ShowLinks,
     [switch]$DoDirSync
@@ -73,9 +72,9 @@ if (!$userId) {
 }
 
 ################ Create request
-$credProfileId = (Invoke-CoreAPIGet -Location "credprofiles?q=$CredProfileName" -FailureMessage "Unable to get credential profile").results.id
+$credProfileId = (Invoke-CoreAPIGet -Location "credprofiles?q=$CardProfileName" -FailureMessage "Unable to get credential profile").results.id
 if (!$credProfileId) {
-    return "Unable to find Credential profile '$CredProfileName'"
+    return "Unable to find Credential profile '$CardProfileName'"
 }
 
 $body = @{
