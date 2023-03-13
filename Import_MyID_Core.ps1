@@ -1,17 +1,61 @@
 ﻿<#
+.SYNOPSIS
+Import user from CSV file and request a credential for them.
+
 .DESCRIPTION
-This script shows how a user can be imported using details from a CSV file.
-A request is then made for the imported user.
-If the user already exists, an error will be shown, but it is possible to create a request for an existing user by passing the CanUseExistingUser switch
-Update the PARAM section to reflect your environment
+Import user from a CSV file.
+A credential request is then made for the imported user.
+If the user already exists an error will be shown unless CanUseExistingUser is set.
+
+
+.PARAMETER ClientId
+The client identifier, e.g. myid.mysystem
+
+.PARAMETER ClientSecret
+The client secret, e.g. efdc4478-4fda-468b-9d9a-78792c20c683
+
+.PARAMETER Server
+The MyID web server hosting the MyID Core API and MyID web.oauth2 web service
+
+.PARAMETER GroupName
+The group that the imported user will be added to
+
+.PARAMETER RoleName
+The MyID role that the imported user will be given
+
+.PARAMETER RoleScope
+The scope of the MyID role given to the user. One of: self, department, division, all
+
+.PARAMETER CardProfileName
+The credential profile used when requesting a credential for the imported user
+
+.PARAMETER Domain
+The account domain of the imported user
+
+.PARAMETER CanUseExistingUser
+Set this to allow an existing user to be used for the credential profile request
+
+.PARAMETER ShowLinks
+Set this to show HATEOAS links related to the request generated for the imported user
+
+.EXAMPLE
+.\Import_MyID_Core.ps1 -ClientId myid.mysystem -ClientSecret efdc4478-4fda-468b-9d9a-78792c20c683
+
+.EXAMPLE
+.\Import_MyID_Core.ps1 -ClientId myid.mysystem -ClientSecret efdc4478-4fda-468b-9d9a-78792c20c683 -CanUseExistingUser
 #>
 Param
 (
-    [string]$ClientId = "myid.mysystem",
-    [string]$ClientSecret = "efdc4478-4fda-468b-9d9a-78792c20c683",
+    [Parameter(Mandatory)]
+    [string]$ClientId,
+    [Parameter(Mandatory)]
+    [string]$ClientSecret,
+    
     [string]$Server = "https://react.domain31.local",
     [string]$GroupName = "Technology",
     [string]$RoleName = "MyID_PROD_Cardholders",
+
+    [ValidateSet('self', 'department', 'division', 'all')]
     [string]$RoleScope = "self",
     [string]$Domain = "domain31",
     [string]$CardProfileName = "PIV_1",
