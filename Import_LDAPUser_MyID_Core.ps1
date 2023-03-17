@@ -50,6 +50,8 @@ Set this to perform a Directory Synchronisation after importing the user.
 .\Import_LDAPUser_MyID_Core.ps1 -ClientId myid.mysystem -ClientSecret efdc4478-4fda-468b-9d9a-78792c20c683 -UniqueId "619F4E062A51264A9452EF5F18A89506" -DoDirSync
 
 #>
+
+[CmdletBinding(PositionalBinding = $false)]
 Param
 (
     [Parameter(Mandatory)]

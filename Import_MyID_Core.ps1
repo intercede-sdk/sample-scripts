@@ -44,6 +44,8 @@ Set this to show HATEOAS links related to the request generated for the imported
 .EXAMPLE
 .\Import_MyID_Core.ps1 -ClientId myid.mysystem -ClientSecret efdc4478-4fda-468b-9d9a-78792c20c683 -CanUseExistingUser
 #>
+
+[CmdletBinding(PositionalBinding = $false)]
 Param
 (
     [Parameter(Mandatory)]

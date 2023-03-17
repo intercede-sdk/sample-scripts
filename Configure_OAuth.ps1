@@ -33,6 +33,7 @@ Using client secret: efdc4478-4fda-468b-9d9a-78792c20c683, with client identifie
 'myid.mysystem' client already exists, updating it
 #>
 
+[CmdletBinding(PositionalBinding = $false)]
 Param
 (
     [Parameter(Mandatory)]
