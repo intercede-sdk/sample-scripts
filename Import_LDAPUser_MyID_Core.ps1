@@ -58,8 +58,8 @@ Param
     [string]$ClientSecret,
 
     [string]$Server = "https://react.domain31.local",
-    [string]$GroupName = "Technology",
-    [string]$RoleName = "MyID_PROD_Cardholders",
+    [string]$GroupName = "Tech",
+    [string]$RoleName = "Cardholder",
 
     [ValidateSet('self', 'department', 'division', 'all')]
     [string]$RoleScope = "self",
