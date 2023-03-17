@@ -50,8 +50,6 @@ if (!$ClientSecret) {
     $ClientSecret = (New-Guid).ToString()
 }
 
-Write-Host "Using client secret: $ClientSecret, with client identifier: $ClientId"
-
 # Hash the GUID using SHA-256, and convert to Base64
 $hasher = [System.Security.Cryptography.HashAlgorithm]::Create("sha256")
 $hashOfSecret = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($ClientSecret))
@@ -96,5 +94,8 @@ else {
     $existingClient.ClientSecrets[0].Value = $base64Secret
     $existingClient.Properties.MyIDLogonName = $MyIDLogonName
 }
+
+Write-Host "Client identifier: $ClientId
+Client secret: $ClientSecret"
 
 Write-Json $authConfig $authConfigPath
