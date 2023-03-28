@@ -11,3 +11,5 @@ Use the `get-help` feature of powershell to get further details, for example:
 ```
 PS > get-help .\Import_LDAPUser_MyID_Core.ps1 -Full
 ```
+
+Note that newer versions of PowerShell are able to handle invalid JSON better in `Configure_OAuth.ps1`. PowerShell Core (https://github.com/PowerShell/PowerShell) is highly recommended.
