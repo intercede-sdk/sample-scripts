@@ -6,7 +6,8 @@ Add or update shared secret authentication node
 Updates the appsettings.production.json configuration file from the web.oauth2 service to include a shared secret authentication entry.
 Copy the existing appsettings.production.json configuration file to the folder containing this script before running.
 After running, the updated appsettings.production.json configuration file can be copied to the MyID server.
-Always make backups, and confirm that changes are expected.
+Always make backups, and confirm that changes are as expected.
+Note that newer versions of PowerShell are able to better handle poorly formatted JSON in appsettings.production.json.
 
 
 .PARAMETER ClientId
@@ -31,6 +32,16 @@ Using client secret: e96f1e8c-7c03-4e61-bb16-05637c3d5069, with client identifie
 .\Configure_OAuth.ps1 -ClientId myid.mysystem -MyIDLogonName api.external -ClientSecret efdc4478-4fda-468b-9d9a-78792c20c683
 Using client secret: efdc4478-4fda-468b-9d9a-78792c20c683, with client identifier: myid.mysystem
 'myid.mysystem' client already exists, updating it
+
+.EXAMPLE
+.\Configure_OAuth.ps1
+cmdlet Configure_OAuth.ps1 at command pipeline position 1
+Supply values for the following parameters:
+ClientId: myid.mysystem
+MyIDLogonName: Homer Peggs
+'myid.mysystem' client already exists, updating it
+Client identifier: myid.mysystem
+Client secret: 21f52369-b497-428a-a68c-a9f08711922a
 #>
 
 [CmdletBinding(PositionalBinding = $false)]
