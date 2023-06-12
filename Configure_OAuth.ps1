@@ -69,6 +69,12 @@ $base64Secret = [Convert]::ToBase64String($hashOfSecret)
 
 $authConfigPath = ".\appsettings.production.json"
 
+if(-Not(Test-Path $authConfigPath)) {
+ return "appsettings.production.json not found. Make necessary changes manually:
+ client secret: $clientSecret
+ Hash: $base64Secret"
+}
+
 $authConfig = Read-JSON $authConfigPath
 
 $existingClient = ($authConfig.Clients | Where-Object { $_.ClientId -eq $ClientId })
