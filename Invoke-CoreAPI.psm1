@@ -1,3 +1,9 @@
+<#
+This function takes three parameters: Server location, Client identifier and Client secret.
+It sets two global variables:
+* ApiHeader: this is the authentication header
+* ApiUrl: this is the location of the MyID Core API end-point
+#>
 Function Set-CoreAPIConnection {
     Param
     (
@@ -13,7 +19,6 @@ Function Set-CoreAPIConnection {
         'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${ClientId}:${ClientSecret}"))
     }
     
-    # TODO - is there a function for joining URIs?
     try {
         $tokenResponse = Invoke-WebRequest -Uri "$Server/web.oauth2/connect/token" -Method Post -Headers $headers  -Body "grant_type=client_credentials"
         $tokenResponseJSON = ConvertFrom-Json $tokenResponse.Content
@@ -32,6 +37,10 @@ Function Set-CoreAPIConnection {
     }
 }
 
+<#
+This function makes GET requests to the MyID Core API
+ApiHeader and ApiURL need to be set by first calling Set-CoreAPIConnection
+#>
 Function Invoke-CoreAPIGet {
     Param
     (
@@ -49,6 +58,10 @@ Function Invoke-CoreAPIGet {
     }
 }
 
+<#
+This in an internal function used by Invoke-CoreAPIPost and Invoke-CoreAPIPatch
+ApiHeader and ApiURL need to be set by first calling Set-CoreAPIConnection
+#>
 Function Invoke-CoreAPIMethod {
     Param
     (
@@ -71,6 +84,10 @@ Function Invoke-CoreAPIMethod {
     }
 }
 
+<#
+This function makes POST requests to the MyID Core API
+The Body parameter is a PowerShell object representing the data to send
+#>
 Function Invoke-CoreAPIPost {
     Param
     (
@@ -85,6 +102,10 @@ Function Invoke-CoreAPIPost {
     Invoke-CoreAPIMethod -Location $Location -FailureMessage $FailureMessage -Method Post -Body $Body
 }
 
+<#
+This function makes POST requests to the MyID Core API
+The Body parameter is a PowerShell object representing the data to send
+#>
 Function Invoke-CoreAPIPatch {
     Param
     (
