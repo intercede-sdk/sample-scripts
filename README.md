@@ -1,4 +1,5 @@
 A collection of sample PowerShell scripts that connect to the Core API.
+More details on the Core API are available here: https://forums.intercede.com/myid-12-7-integration-toolkit/myid-core-api-12-7/
 
 #### Configure_OAuth.ps1
 _Configure_OAuth.ps1_ helps to set up the MyID web.oauth2 web service configuration with an additional client. It makes use of _ConfigureSettings.psm1_ which contains functions for reading/updating a JSON file.
