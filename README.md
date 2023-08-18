@@ -24,6 +24,10 @@ Sample usage of the above module is shown in the following sample scripts:
 - _Import_LDAPUser_MyID_Core.ps1_: Authenticates to MyID, then Import a user from LDAP and request a device for them (optionally perform a directory sync at end)
 - _Import_MyID_Core.ps1_: Authenticates to MyID, then Add a user with details defined in a CSV (ACastle2.CSV) and then request a device for that user.
 
+The following scripts duplicate the behaviour of the https://github.com/intercede-sdk/manageDevice project, converting JavaScript code to PowerShell:
+- _AddUserCreateRequest.ps1_: Adds a user and creates a request for them
+- _FindUserCancelDevice.ps1_: Finds the user added above, and cancels a device issued to them (after the request in the first script is collected)
+
 #### More details on .ps1 scripts
 Use the `get-help` feature of powershell to get further details on the above three scripts, for example:
 
