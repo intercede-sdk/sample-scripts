@@ -28,6 +28,8 @@ The following scripts duplicate the behaviour of the https://github.com/interced
 - _AddUserCreateRequest.ps1_: Adds a user and creates a request for them
 - _FindUserCancelDevice.ps1_: Finds the user added above, and cancels a device issued to them (after the request in the first script is collected)
 
+- _CancelDeviceForUser.ps1_: Finds a device owned by a user, and cancels the device - a more efficient way than _FindUserCancelDevice.ps1_ if owner details are unique
+
 #### More details on .ps1 scripts
 Use the `get-help` feature of powershell to get further details on the above three scripts, for example:
 
