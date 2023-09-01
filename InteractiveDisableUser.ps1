@@ -14,7 +14,7 @@ Set-CoreAPIConnection -Server "https://react.domain31.local" -ClientId "get.user
 $lastName = Read-Host "Enter first few characters of last name"
 
 #Perform search
-$users = Invoke-CoreAPIGet -Location "people?lastName=$($lastName)*"
+$users = Invoke-CoreAPIGet -Location "people?name.last=$($lastName)*"
 # see details with:
 $users.results
 
