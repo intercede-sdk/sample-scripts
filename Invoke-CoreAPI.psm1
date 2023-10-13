@@ -59,6 +59,27 @@ Function Invoke-CoreAPIGet {
 }
 
 <#
+This function makes DELETE requests to the MyID Core API
+ApiHeader and ApiURL need to be set by first calling Set-CoreAPIConnection
+#>
+Function Invoke-CoreAPIDelete {
+    Param
+    (
+        [Parameter(Mandatory)]
+        [string] $Location,
+        [string] $FailureMessage = ""
+    )
+
+    try {
+        $apiResponse = Invoke-WebRequest -Uri "$ApiUrl/$Location" -Headers $ApiHeader -Method Delete
+        return ConvertFrom-Json $apiResponse.Content
+    }
+    catch {
+        Write-Host "ERROR - $FailureMessage. $_"
+    }
+}
+
+<#
 This in an internal function used by Invoke-CoreAPIPost and Invoke-CoreAPIPatch
 ApiHeader and ApiURL need to be set by first calling Set-CoreAPIConnection
 #>
@@ -122,5 +143,6 @@ Function Invoke-CoreAPIPatch {
 
 Export-ModuleMember -Function Set-CoreAPIConnection
 Export-ModuleMember -Function Invoke-CoreAPIGet
+Export-ModuleMember -Function Invoke-CoreAPIDelete
 Export-ModuleMember -Function Invoke-CoreAPIPost
 Export-ModuleMember -Function Invoke-CoreAPIPatch
