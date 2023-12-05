@@ -26,29 +26,24 @@ $XAML.SelectNodes("//*[@Name]") | ForEach-Object { Set-Variable -Name ($_.Name) 
 
 #region XAML Controls
 
-# Populate users datagrid with users that match last name
+# Default message
 $results.Text = "Enter part of user's last name"
 
+# Populate users datagrid with users that match last name
 $lastName.Add_TextChanged({
         $search = $lastName.Text
         if (!$search) {
             $results.Text = "Enter part of user's last name"
             return $users.ItemsSource = $null
         }
-        $userList = Invoke-CoreAPIGet -Location "people?name.last=$($search)*"
-        $users.ItemsSource = $userList.results
-        if($userList.results){
-            $results.Text = "Select a user"
-        } else {
-            $results.Text = "No user found"
-        }
-        
+        $userList = (Invoke-CoreAPIGet -Location "people?name.last=$($search)*").results
+        $users.ItemsSource = $userList
+        $results.Text = $userList ? "Select a user" : "No user found"        
     })
 
 # Populate reasons datagrid with reasons to disable - note this can vary as selected user varies
 $users.Add_SelectionChanged({
     if(!$users.selectedItems){
-        # $results.Text = "Enter part of user's last name"
         return $reasonList.ItemsSource = $null
     }
     if($users.selectedItems.Enabled -eq "No"){
@@ -68,32 +63,26 @@ $reasonList.Add_SelectionChanged({
     }
 })
 
+$update.Add_Click({
+    # avoid double call
+    $update.IsEnabled = $false;
+    # set up body for cancellation
+    $cancelReason = @{
+        reason = @{
+            statusMappingId = $reasonList.selectedItems.id
+            description     = $notes.Text
+        }
+    }
 
-
-
-# Show messages in "Results" - select user, select reason, user already disabled, enter note (optional) and click update, result of update
+    Write-Host @cancelReason
+    
+    # Perform disable operations
+    # $response = Invoke-CoreAPIPost -Location "people/$($users.selectedItems.id)/disable" -Body $cancelReason -FailureMessage "Unable to disable user"
+    # Remove Links from reponse (these are the operations that can be performed on the user)
+    # $response.PSObject.Properties.Remove('links')
+    # ConvertTo-Json $response -Depth 6    
+})
    
 #endregion
 
 $form.ShowDialog()
-<#
-
-
-#Choose reason to disable
-$reason = Read-Host "Enter 'id' of reason"
-$notes = Read-Host "(Optional) Provide notes to be included when disabling user"
-
-#set up body for cancellation
-$cancelReason = @{
-    reason = @{
-        statusMappingId = $reason
-        description     = $notes
-    }
-}
-
-# Perform disable operations
-$response = Invoke-CoreAPIPost -Location "people/$($id)/disable" -Body $cancelReason -FailureMessage "Unable to disable user"
-# Remove Links from reponse (these are the operations that can be performed on the user)
-$response.PSObject.Properties.Remove('links')
-ConvertTo-Json $response -Depth 6
-#>
