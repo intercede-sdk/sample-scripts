@@ -24,8 +24,9 @@ $XAML.SelectNodes("//*[@Name]") | ForEach-Object { Set-Variable -Name ($_.Name) 
 
 #endregion
 
-#region XAML Controlls
+#region XAML Controls
 
+# Populate users datagrid with users that match last name
 $lastName.Add_TextChanged({
         $search = $lastName.Text
         if (!$search) {
@@ -36,30 +37,25 @@ $lastName.Add_TextChanged({
         $users.ItemsSource = $results.results
     })
 
+# Populate reasons datagrid with reasons to disable - note this can vary as selected user varies
+$users.Add_SelectionChanged({
+    Write-Host $users.selectedItems
+    if($users.selectedItems.Enabled -eq "No"){
+        Write-Host "already disabled"
+        return $reasonList.ItemsSource = $null
+    }
+    $possibleReasons = Invoke-CoreAPIGet -Location "people/$($users.selectedItems.id)/statusMappings?op=100113"
+    $reasonList.ItemsSource = $possibleReasons.results
+})
+
+# 'Update button' should be disabled until user and reason is selected
+# Show messages in "Results" - select user, select reason, user already disabled, enter note (optional) and click update, result of update
    
 #endregion
 
 $form.ShowDialog()
 <#
 
-#Enter surname of user we wish to find
-$id = Read-Host "Enter 'id' of user to disable"
-
-# Exit early if user is not found or already disabled
-$selectedUser = $users.results | Where-Object { $_.id -eq $id }
-if (!$selectedUser) {
-    return "Please check id provided and try again"
-}
-
-if ( $selectedUser.Enabled -eq "No") {
-    Write-Host "Selected user is already disabled"
-    return $selectedUser
-}
-
-#Show reasons for disabling user
-#Disable person is operation 100113 (can we simplify this?)
-$possibleReasons = Invoke-CoreAPIGet -Location "people/$($id)/statusMappings?op=100113"
-$possibleReasons.results
 
 #Choose reason to disable
 $reason = Read-Host "Enter 'id' of reason"
