@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InteractiveDisableUser"
         mc:Ignorable="d"
-        Title="Disable User" Height="900" Width="800">
+        Title="Disable User" Height="950" Width="850" FontSize="14" ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="57*"/>
@@ -14,13 +14,13 @@
         <Label Content="First few characters of last name of user to disabled" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="286" Height="26" Grid.Column="1"/>
         <TextBox x:Name="lastName" HorizontalAlignment="Left" Margin="302,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="369" Grid.Column="1" Height="18"/>
         <Label Content="Users" Margin="0,60,457,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <DataGrid x:Name="users" Grid.Column="1" Margin="0,91,72,518" IsReadOnly="True"/>
+        <DataGrid x:Name="users" Grid.Column="1" Margin="0,91,72,518" IsReadOnly="True" Height="275" HorizontalAlignment="Left" Width="671" VerticalAlignment="Top" />
         <Label Content="Reason to disable" Margin="0,371,457,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <DataGrid x:Name="reasonList" Grid.Column="1" Margin="0,402,72,299" IsReadOnly="True"/>
-        <Label Content="Notes" Margin="0,590,457,0" VerticalAlignment="Top" Grid.Column="1" Height="26" HorizontalAlignment="Right" Width="286"/>
-        <TextBox x:Name="notes" Margin="0,621,72,115" TextWrapping="Wrap" Grid.Column="1" RenderTransformOrigin="0.496,0.529" HorizontalAlignment="Right" Width="671"/>
-        <Button Grid.Column="1" Content="Update" Margin="302,774,0,0" VerticalAlignment="Top" IsEnabled="{Binding SelectedValuePath, ElementName=reasonList}" HorizontalAlignment="Left" Width="64"/>
-        <Label Content="Results" HorizontalAlignment="Right" Margin="0,789,457,0" VerticalAlignment="Top" Width="286" Grid.Column="1" Height="26"/>
-        <TextBox x:Name="results" HorizontalAlignment="Right" Margin="0,820,72,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="671" Height="54" Grid.Column="1" IsEnabled="False"/>
+        <DataGrid x:Name="reasonList" Grid.Column="1" Margin="0,402,72,299" IsReadOnly="True" Height="185" HorizontalAlignment="Left" Width="672" VerticalAlignment="Top" />
+        <Label Content="Notes" Margin="0,590,457,0" VerticalAlignment="Top" Grid.Column="1" Height="26" HorizontalAlignment="Left" Width="286"/>
+        <TextBox x:Name="notes" Margin="0,621,72,115" TextWrapping="Wrap" Grid.Column="1" HorizontalAlignment="Left" Height="150" Width="671" VerticalAlignment="Top" />
+        <Button x:Name="update" Grid.Column="1" Content="Update" Margin="302,774,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="64" IsEnabled="False"/>
+        <Label Content="Results" HorizontalAlignment="Left" Margin="0,789,457,0" VerticalAlignment="Top" Width="286" Grid.Column="1" Height="26"/>
+        <TextBox x:Name="results" HorizontalAlignment="Left" Margin="0,820,72,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="671" Height="54" Grid.Column="1" IsEnabled="False"/>
     </Grid>
 </Window>

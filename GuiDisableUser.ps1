@@ -27,28 +27,50 @@ $XAML.SelectNodes("//*[@Name]") | ForEach-Object { Set-Variable -Name ($_.Name) 
 #region XAML Controls
 
 # Populate users datagrid with users that match last name
+$results.Text = "Enter part of user's last name"
+
 $lastName.Add_TextChanged({
         $search = $lastName.Text
         if (!$search) {
+            $results.Text = "Enter part of user's last name"
             return $users.ItemsSource = $null
         }
-
-        $results = Invoke-CoreAPIGet -Location "people?name.last=$($search)*"
-        $users.ItemsSource = $results.results
+        $userList = Invoke-CoreAPIGet -Location "people?name.last=$($search)*"
+        $users.ItemsSource = $userList.results
+        if($userList.results){
+            $results.Text = "Select a user"
+        } else {
+            $results.Text = "No user found"
+        }
+        
     })
 
 # Populate reasons datagrid with reasons to disable - note this can vary as selected user varies
 $users.Add_SelectionChanged({
-    Write-Host $users.selectedItems
+    if(!$users.selectedItems){
+        # $results.Text = "Enter part of user's last name"
+        return $reasonList.ItemsSource = $null
+    }
     if($users.selectedItems.Enabled -eq "No"){
-        Write-Host "already disabled"
+        $results.Text = "Selected user already disabled"
         return $reasonList.ItemsSource = $null
     }
     $possibleReasons = Invoke-CoreAPIGet -Location "people/$($users.selectedItems.id)/statusMappings?op=100113"
     $reasonList.ItemsSource = $possibleReasons.results
+    $results.Text = "Select reason to disable and, optionally, add notes"
 })
 
-# 'Update button' should be disabled until user and reason is selected
+# 'Update button' disabled until user and reason is selected
+$reasonList.Add_SelectionChanged({
+    $update.IsEnabled = $reasonList.selectedItems;
+    if($reasonList.selectedItems){
+        $results.Text = "Click update to disable user"
+    }
+})
+
+
+
+
 # Show messages in "Results" - select user, select reason, user already disabled, enter note (optional) and click update, result of update
    
 #endregion
