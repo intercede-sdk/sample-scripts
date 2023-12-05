@@ -1,1 +1,4 @@
 appsettings.production.json
+obj
+GUI/InteractiveDisableUser/bin
+GUI/.vs
