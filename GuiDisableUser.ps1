@@ -74,8 +74,6 @@ $update.Add_Click({
         }
     }
 
-    Write-Host @cancelReason
-    
     # Perform disable operations
     $response = Invoke-CoreAPIPost -Location "people/$($users.selectedItems.id)/disable" -Body $cancelReason -FailureMessage "Unable to disable user"
     # Remove Links from reponse (these are the operations that can be performed on the user)
