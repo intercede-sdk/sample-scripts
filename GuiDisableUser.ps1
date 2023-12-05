@@ -38,6 +38,10 @@ $lastName.Add_TextChanged({
         }
         $userList = (Invoke-CoreAPIGet -Location "people?name.last=$($search)*").results
         $users.ItemsSource = $userList
+        if($userList){
+            $users.Columns[0].Visibility = "Collapsed"
+            $users.Columns[6].Visibility = "Collapsed"
+        }
         $results.Text = $userList ? "Select a user" : "No user found"        
     })
 

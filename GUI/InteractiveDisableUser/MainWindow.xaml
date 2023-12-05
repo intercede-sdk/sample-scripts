@@ -11,7 +11,7 @@
             <ColumnDefinition Width="57*"/>
             <ColumnDefinition Width="743*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="First few characters of last name of user to disabled" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="286" Height="26" Grid.Column="1"/>
+        <Label Content="First few characters of last name of user to disabled" HorizontalAlignment="Left" Margin="0,18,0,0" VerticalAlignment="Top" Width="286" Height="26" Grid.Column="1" FontSize="12"/>
         <TextBox x:Name="lastName" HorizontalAlignment="Left" Margin="302,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="369" Grid.Column="1" Height="18"/>
         <Label Content="Users" Margin="0,60,457,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
         <DataGrid x:Name="users" Grid.Column="1" Margin="0,91,72,518" IsReadOnly="True" Height="275" HorizontalAlignment="Left" Width="671" VerticalAlignment="Top" />
