@@ -1,0 +1,16 @@
+{
+    "name": {
+        "last": "Drover",
+        "title": "Mrs"
+    },
+    "logonName": "Grace Drover",
+    "contact": {
+        "emailAddress": "Grace.Drover@domain25.local"
+    },
+    "account": {
+        "samAccountName": "Grace Drover",
+        "upn": "Grace Drover@domain25.local",
+        "dn": "CN=Grace Drover,OU=Department of Education,OU=PIV,DC=domain25,DC=local",
+        "cn": "Grace Drover"
+    }
+}

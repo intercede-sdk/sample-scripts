@@ -34,6 +34,8 @@ The following scripts duplicate the behaviour of the https://github.com/interced
 
 - _GuiDisableUser.ps1_: Disable user via a GUI. GUI defined in XAML ![DisableUser](images/disableUser.png)
 
+- _UpdateUser.ps1_: Update a user based on JSON input files. Two samples files, _nameChange.json_ and _nameChange2.json_ provided to show how legal name change can be applied. Note that changing Directory details (like DN/UPN, etc) requires MyID Configuration changes (details in the ps1 file).
+
 
 
 #### More details on .ps1 scripts

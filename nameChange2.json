@@ -1,0 +1,16 @@
+{
+    "name": {
+        "last": "Driver",
+        "title": "Ms"
+    },
+    "logonName": "Grace Driver",
+    "contact": {
+        "emailAddress": "Grace.Driver@domain25.local"
+    },
+    "account": {
+        "samAccountName": "Grace Driver",
+        "upn": "Grace Driver@domain25.local",
+        "dn": "CN=Grace Driver,OU=Department of Education,OU=PIV,DC=domain25,DC=local",
+        "cn": "Grace Driver"
+    }
+}
